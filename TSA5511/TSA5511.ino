@@ -20,7 +20,7 @@ void setup()
 void loop()
 {
   if (readLb == 1){
-    readLockbit();
+    readLockbyte();
   }
   //pll_set_frequency(94500);
 }
@@ -56,7 +56,7 @@ void pll_set_frequency(long pllfreq) {
   Wire.endTransmission(); 
 }
 
-void readLockbit(){
+void readLockbyte(){
   Wire.requestFrom(96, 2);
   if ( Wire.available() >= 1 | readLb == 1)
   {
