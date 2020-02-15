@@ -8,6 +8,8 @@
 
 #include <Wire.h>
 
+int readLb = 1;
+
 void setup()
 {
   Serial.begin(9600);
@@ -17,7 +19,10 @@ void setup()
 
 void loop()
 {
-
+  if (readLb == 1){
+    readLockbit();
+  }
+  //pll_set_frequency(94500);
 }
 
 void pll_set_frequency(long pllfreq) {
@@ -48,18 +53,26 @@ void pll_set_frequency(long pllfreq) {
   Wire.beginTransmission(96);
   Wire.write(0xCE);
   Wire.write(0x20);
-  Wire.endTransmission();
+  Wire.endTransmission(); 
+}
 
-  // Here we wanna read the TSA5511 for Lock Signal not working yet.
-  Wire.requestFrom(96, 1);
-  if ( Wire.available() >= 1 )
+void readLockbit(){
+  Wire.requestFrom(96, 2);
+  if ( Wire.available() >= 1 | readLb == 1)
   {
-    int result = Wire.read() ;
-    Serial.println( result, HEX );
+    if (Wire.read() == 0x48){
+      Serial.println("Lock");
+      startTransmitting();
+      readLb = 0;
+    } else
+    {
+      Serial.println("NoLock");
+    }
+    //Serial.println( result, HEX );
   }
-  
-  delay(500);
-  
+}
+
+void startTransmitting(){
   // byte begin transmitting DRFS6 v2.0
   Wire.beginTransmission(96);
   Wire.write(0xCE);
