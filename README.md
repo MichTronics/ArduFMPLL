@@ -9,6 +9,6 @@ This pcb you can buy it from https://dutchrfshop.nl/nl/.
 
 #### TODO ####
 
-Make user interface on lcd 2*16.
-Use rotary encoder to navigate.
+Make user interface on lcd 2*16.<br>
+Use rotary encoder to navigate.<br>
 And maybe gona use a digital potmeter for output power adjustment.
