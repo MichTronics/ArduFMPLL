@@ -2,7 +2,8 @@
 //                                            //
 //           ArduFMPLL by MichTronics         //
 //                      v0.1                  //
-//  Working with the DRFS6 v2.0 FM 6W TX Kit  //
+//                Working with the            //
+//        DRFS6 v2.0 3meter FM 6W TX Kit      //
 //                                            //
 ////////////////////////////////////////////////
 
@@ -17,7 +18,7 @@ bool up = false;
 bool down = false;
 bool middle = false;
 
-int16_t last, value;
+byte rotaryT;
 
 LiquidCrystal_I2C lcd(0x3f, 20, 4);
 OneButton button(A0,true);
@@ -42,19 +43,26 @@ void setup()
   lcd.clear();
   pll_set_frequency(94500);
 }
+int test = 1;
 
 void loop()
-{
-  byte rotaryT;
+{  
+  
   rotaryT = rotary.rotate();
   if (rotaryT == 1 ) {
-    lcd.setCursor(1,0);
-    lcd.print("LEFT ");
+    lcd.setCursor(0,0);
+    test = test - 1;
+    lcd.print(" ");
+    lcd.print(test);
+    lcd.print(" ");
     Serial.println("LEFT");
   }
   if (rotaryT == 2) {
-    lcd.setCursor(1,0);
-    lcd.print("RIGHT");
+    lcd.setCursor(0,0);
+    test = test + 1;
+    lcd.print(" ");
+    lcd.print(test);
+    lcd.print(" ");
     Serial.println("RIGHT");
   }
   button.tick();
