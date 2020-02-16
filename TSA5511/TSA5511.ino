@@ -13,13 +13,23 @@
 #include <LiquidCrystal_I2C.h>
 
 int readLbs = 1;
+int configScreen = 0;
 
 bool up = false;
 bool down = false;
 bool middle = false;
 
 byte rotaryT;
-
+byte arrowChar[] = {
+  B01100,
+  B00110,
+  B00011,
+  B11111,
+  B11111,
+  B00011,
+  B00110,
+  B01100
+};
 LiquidCrystal_I2C lcd(0x3f, 20, 4);
 OneButton button(A0,true);
 SimpleRotary rotary(2,3,4);
@@ -41,35 +51,56 @@ void setup()
   lcd.print("Radio West-Friesland");
   delay(1000);
   lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.createChar(0, arrowChar);
+  lcd.home();
+  lcd.write(0);
   pll_set_frequency(94500);
 }
 int test = 1;
 
 void loop()
 {  
-  
   rotaryT = rotary.rotate();
-  if (rotaryT == 1 ) {
+  debugRotary();
+  button.tick();
+  if (readLbs == 1){
+    readLockbyte();
+  }
+  startScreen();
+  //pll_set_frequency(94500);
+}
+
+void debugRotary() {
+  if (rotaryT == 1) {
+    Serial.println("LEFT");
+  }
+  if (rotaryT == 2) {
+    Serial.println("RIGHT");
+  }
+}
+
+void startScreen() {  
+  if (rotaryT == 1 & configScreen == 0) {
     lcd.setCursor(0,0);
+    lcd.createChar(0, arrowChar);
+    lcd.home();
+    lcd.write(0);
+    lcd.setCursor(1,0);
     test = test - 1;
     lcd.print(" ");
     lcd.print(test);
     lcd.print(" ");
     Serial.println("LEFT");
   }
-  if (rotaryT == 2) {
-    lcd.setCursor(0,0);
+  if (rotaryT == 2 & configScreen == 0) {
+    lcd.setCursor(1,0);
     test = test + 1;
     lcd.print(" ");
     lcd.print(test);
     lcd.print(" ");
     Serial.println("RIGHT");
   }
-  button.tick();
-  if (readLbs == 1){
-    readLockbyte();
-  }
-  //pll_set_frequency(94500);
 }
 
 void pll_set_frequency(long pllfreq) {
@@ -128,10 +159,15 @@ void startTransmitting(){
 
 void singleClick() {
   Serial.println("SINGLE");
+  configScreen = 1;
+  lcd.clear();
+  lcd.setCursor(4,0);
+  lcd.print("Instellingen");
 }
 
 void doubleClick() {
   Serial.println("DOUBLE");
+  
 }
 
 void longClick() {
