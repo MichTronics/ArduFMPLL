@@ -2,9 +2,9 @@
 
 ## ArduFMPLL Nederlands ##
 
-Arduino code die moet gaan werken met de PLL ic's TSA5511 / SAA1057.
-De TSA5511 zit in de DRFS 6 v2.0 van de Dutch RF Shop. https://dutchrfshop.nl/nl/
-De SAA1057 zit in de ECC Tube Oscillator van Fred Wester. http://www.fred-wester.nl/ecc_tube_oscillator.html
+Arduino code die moet gaan werken met de PLL ic's TSA5511 / SAA1057.<br>
+De TSA5511 zit in de DRFS 6 v2.0 van de Dutch RF Shop. https://dutchrfshop.nl/nl/.<br>
+De SAA1057 zit in de ECC Tube Oscillator van Fred Wester. http://www.fred-wester.nl/ecc_tube_oscillator.html.<br>
 
 ### TSA5511 ###
 
