@@ -3,6 +3,8 @@
 ## ArduFMPLL Nederlands ##
 
 Arduino code die moet gaan werken met de PLL ic's TSA5511 / SAA1057.
+De TSA5511 zit in de DRFS 6 v2.0 van de Dutch RF Shop. https://dutchrfshop.nl/nl/
+De SAA1057 zit in de ECC Tube Oscillator van Fred Wester. http://www.fred-wester.nl/ecc_tube_oscillator.html
 
 ### TSA5511 ###
 
@@ -11,7 +13,6 @@ Ik heb de code werkend met de DRFS 6 v2.0 kit dit is een 3Meter FM zender die 6 
 Deze zender heeft ook een character lcd van 16x2 om de frequentie in te stellen.<br>
 En heeft een potmeter om het vermogen in te stellen van 0w tot 6w.<br>
 De zender heeft ook een pic16f628a microcontroller om het scherm, knoppen en TSA5511 aan te sturen.<br>
-Deze kit kan je kopen bij https://dutchrfshop.nl/nl/.<br>
 
 #### TODO ####
 
