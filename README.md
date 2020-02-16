@@ -1,4 +1,4 @@
-#### !!!!Scroll down for english!!!! ####
+#### !!!! SCROLL DOWN FOR ENGLISH !!!! ####
 
 ## ArduFMPLL Nederlands ##
 
