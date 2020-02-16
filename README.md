@@ -17,8 +17,8 @@ Daar wil ik dus een arduino voor gaan gebruiken.
 
 #### TODO ####
 
-Een gebuikersinterface op een character lcd van 20x4.<br>
-Die gerbuikersinterface is te bedienen met rotary encoder.<br>
+Een gebruikersinterface op een character lcd van 20x4.<br>
+Die gebruikersinterface is te bedienen met rotary encoder.<br>
 En misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnne regelen.
 
 ### SAA1057 ###
