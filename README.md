@@ -19,7 +19,7 @@ Voor de pic16f628a komt dus de arduino in de plaats.
 
 Een gebuikersinterface op een character lcd van 20x4.<br>
 Die gerbuikersinterface is te bedienen met rotary encoder.<br>
-En misschien And maybe gona use a digital potmeter for output power adjustment.
+En misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnne regelen.
 
 ### SAA1057 ###
 
@@ -35,7 +35,7 @@ Arduino code that is working with PLL chip TSA5511 / SAA1057
 
 ### TSA5511 ###
 
-This chip is communcating true i2c.
+This chip is communcating true i2c.<br>
 I got it working with the DRFS 6 v2.0 3Meter FM Transmitter 6Watt.<br>
 This pcb you can buy it from https://dutchrfshop.nl/nl/.
 
