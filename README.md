@@ -1,3 +1,5 @@
+#### !!!!Scroll down for english!!!! ####
+
 ## ArduFMPLL Nederlands ##
 
 Arduino code die moet gaan werken met de PLL ic's TSA5511 / SAA1057.
@@ -23,12 +25,7 @@ Ben ik nog aan het uitzoeken eerst die TSA5511 code compleet werkend krijgen dan
 
 #### TODO ####
 
-Code schrijven om die SAA1057 aan te sturen met een arduino.
-
-
-
-
-
+Code schrijven om die SAA1057 aan te sturen met een arduino.<br><br><br><br>
 
 ## ArduFMPLL English ##
 
