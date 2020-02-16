@@ -48,9 +48,13 @@ void loop()
   byte rotaryT;
   rotaryT = rotary.rotate();
   if (rotaryT == 1 ) {
+    lcd.setCursor(1,0);
+    lcd.print("LEFT ");
     Serial.println("LEFT");
   }
   if (rotaryT == 2) {
+    lcd.setCursor(1,0);
+    lcd.print("RIGHT");
     Serial.println("RIGHT");
   }
   button.tick();
