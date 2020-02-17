@@ -12,14 +12,21 @@
 #include <SimpleRotary.h>
 #include <LiquidCrystal_I2C.h>
 
+#define encoderClk 2
+#define encoderData 3
+
 int readLbs = 1;
-int configScreen = 0;
+int configScreenEnable = 0;
+int clicks = 0;
+int configMenuLine = 1;
+int menuLine = 1;
 
-bool up = false;
-bool down = false;
-bool middle = false;
+//bool up = false;
+//bool down = false;
+//bool middle = false;
 
-byte rotaryT;
+byte rotaryPos;
+
 byte arrowChar[] = {
   B01100,
   B00110,
@@ -30,19 +37,26 @@ byte arrowChar[] = {
   B00110,
   B01100
 };
+
 LiquidCrystal_I2C lcd(0x3f, 20, 4);
 OneButton button(A0,true);
 SimpleRotary rotary(2,3,4);
 
 void setup()
 {
-  lcd.init();
-  lcd.backlight();
-  Serial.begin(9600);
   Wire.begin(); // join i2c bus
+  Serial.begin(9600);
+  
+  rotary.setTrigger(HIGH);
+  rotary.setDebounceDelay(5);
+  rotary.setErrorDelay(250);
+
   button.attachClick(singleClick);
   button.attachDoubleClick(doubleClick);
   button.attachPress(longClick);
+  
+  lcd.init();
+  lcd.backlight();
   lcd.setCursor(4,0);
   lcd.print("MichTronics");
   lcd.setCursor(3,1);
@@ -51,55 +65,95 @@ void setup()
   lcd.print("Radio West-Friesland");
   delay(1000);
   lcd.clear();
-  lcd.setCursor(0,0);
   lcd.createChar(0, arrowChar);
-  lcd.home();
+  lcd.setCursor(0,1);
   lcd.write(0);
-  pll_set_frequency(94500);
+  
+//  pll_set_frequency(94500);
 }
-int test = 1;
 
 void loop()
 {  
-  rotaryT = rotary.rotate();
-  debugRotary();
   button.tick();
   if (readLbs == 1){
     readLockbyte();
   }
+  rotaryPos = rotary.rotate();
+  //Serial.println(menuLine);
+  if ( rotaryPos == 1 ) {
+    //Serial.println("CW");
+    if (menuLine <= 3){
+      menuLine++;
+      //Serial.println(menuLine);
+    }
+  } else if ( rotaryPos == 2 ) {
+    //Serial.println("CCW");
+    if (menuLine >= 1){
+      menuLine--;
+      //Serial.println(menuLine);
+    }
+  }
   startScreen();
+//  configScreen();
+  
+  
   //pll_set_frequency(94500);
 }
 
-void debugRotary() {
-  if (rotaryT == 1) {
-    Serial.println("LEFT");
+void startScreen() {
+  //Serial.println(menuLine);
+  if (configScreenEnable == 0){
+    lcd.setCursor(7, 0);
+    lcd.print(" MAIN ");  
   }
-  if (rotaryT == 2) {
-    Serial.println("RIGHT");
+  if (rotaryPos == 1) {
+    lcd.createChar(0, arrowChar);
+    if (menuLine <= 3) {
+      lcd.clear();
+      lcd.setCursor(0,menuLine);
+      lcd.write(0);
+    } 
+//    Serial.println("RIGHT");
+  } else if (rotaryPos == 2) {
+    lcd.createChar(0, arrowChar);
+    if (menuLine >= 1 ) {
+      lcd.clear();
+      lcd.setCursor(0,menuLine);
+      lcd.write(0);
+    }
+//    Serial.println("LEFT");
   }
 }
 
-void startScreen() {  
-  if (rotaryT == 1 & configScreen == 0) {
-    lcd.setCursor(0,0);
+void configScreen() {
+  //byte rotaryConfig;
+  //rotaryConfig = rotary.rotate();
+  if (clicks == 1 & configScreenEnable == 1){
+    if(configScreenEnable == 1){
+      //lcd.clear();
+      lcd.setCursor(4,0);
+      lcd.print("Instellingen");
+    }
+    if (rotaryPos == 1 & configScreenEnable == 1){
+      lcd.createChar(0, arrowChar);
+      if (configMenuLine >= 1 & configMenuLine < 3) {
+        lcd.clear();
+        configMenuLine++;
+        lcd.setCursor(0,menuLine);
+        lcd.write(0);
+      }            
+      Serial.println("LEFT");
+    }
+    if (rotaryPos == 2 & configScreenEnable == 1) {
     lcd.createChar(0, arrowChar);
-    lcd.home();
-    lcd.write(0);
-    lcd.setCursor(1,0);
-    test = test - 1;
-    lcd.print(" ");
-    lcd.print(test);
-    lcd.print(" ");
-    Serial.println("LEFT");
-  }
-  if (rotaryT == 2 & configScreen == 0) {
-    lcd.setCursor(1,0);
-    test = test + 1;
-    lcd.print(" ");
-    lcd.print(test);
-    lcd.print(" ");
+    if (configMenuLine >= 2 ) {
+      lcd.clear();
+      configMenuLine--;
+      lcd.setCursor(0,configMenuLine);
+      lcd.write(0);
+    }
     Serial.println("RIGHT");
+  }
   }
 }
 
@@ -159,10 +213,12 @@ void startTransmitting(){
 
 void singleClick() {
   Serial.println("SINGLE");
-  configScreen = 1;
   lcd.clear();
-  lcd.setCursor(4,0);
-  lcd.print("Instellingen");
+  lcd.createChar(0, arrowChar);
+  lcd.setCursor(0,1);
+  lcd.write(0);
+  clicks = 1;
+  configScreenEnable = 1; 
 }
 
 void doubleClick() {
@@ -172,4 +228,11 @@ void doubleClick() {
 
 void longClick() {
   Serial.println("LONG");
+  lcd.clear();
+  lcd.createChar(0, arrowChar);
+  lcd.setCursor(0,1);
+  lcd.write(0);
+  clicks = 0;
+  configScreenEnable = 0;
+  startScreen();
 }
