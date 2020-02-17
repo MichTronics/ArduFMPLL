@@ -65,9 +65,9 @@ void setup()
   lcd.print("Radio West-Friesland");
   delay(1000);
   lcd.clear();
-  lcd.createChar(0, arrowChar);
-  lcd.setCursor(0,1);
-  lcd.write(0);
+//  lcd.createChar(0, arrowChar);
+//  lcd.setCursor(0,1);
+//  lcd.write(0);
   
 //  pll_set_frequency(94500);
 }
@@ -75,9 +75,11 @@ void setup()
 void loop()
 {  
   button.tick();
-  if (readLbs == 1){
-    readLockbyte();
-  }
+  
+//  if (readLbs == 1){
+//    readLockbyte();
+//  }
+
   rotaryPos = rotary.rotate();
   //Serial.println(menuLine);
   if ( rotaryPos == 1 ) {
@@ -94,7 +96,7 @@ void loop()
     }
   }
   startScreen();
-//  configScreen();
+  configScreen();
   
   
   //pll_set_frequency(94500);
@@ -106,28 +108,26 @@ void startScreen() {
     lcd.setCursor(7, 0);
     lcd.print(" MAIN ");  
   }
-  if (rotaryPos == 1) {
-    lcd.createChar(0, arrowChar);
-    if (menuLine <= 3) {
-      lcd.clear();
-      lcd.setCursor(0,menuLine);
-      lcd.write(0);
-    } 
-//    Serial.println("RIGHT");
-  } else if (rotaryPos == 2) {
-    lcd.createChar(0, arrowChar);
-    if (menuLine >= 1 ) {
-      lcd.clear();
-      lcd.setCursor(0,menuLine);
-      lcd.write(0);
-    }
-//    Serial.println("LEFT");
-  }
+//  if (rotaryPos == 1 && configScreenEnable == 0) {
+//    lcd.createChar(0, arrowChar);
+//    if (menuLine <= 3) {
+//      lcd.clear();
+//      lcd.setCursor(0,menuLine);
+//      lcd.write(0);
+//    } 
+////    Serial.println("RIGHT");
+//  } else if (rotaryPos == 2 && configScreenEnable == 0) {
+//    lcd.createChar(0, arrowChar);
+//    if (menuLine >= 1 ) {
+//      lcd.clear();
+//      lcd.setCursor(0,menuLine);
+//      lcd.write(0);
+//    }
+////    Serial.println("LEFT");
+//  }
 }
 
 void configScreen() {
-  //byte rotaryConfig;
-  //rotaryConfig = rotary.rotate();
   if (clicks == 1 & configScreenEnable == 1){
     if(configScreenEnable == 1){
       //lcd.clear();
@@ -136,23 +136,23 @@ void configScreen() {
     }
     if (rotaryPos == 1 & configScreenEnable == 1){
       lcd.createChar(0, arrowChar);
-      if (configMenuLine >= 1 & configMenuLine < 3) {
+      if (menuLine <= 3) {
         lcd.clear();
-        configMenuLine++;
+        //configMenuLine++;
         lcd.setCursor(0,menuLine);
         lcd.write(0);
       }            
-      Serial.println("LEFT");
+      //Serial.println("LEFT");
     }
     if (rotaryPos == 2 & configScreenEnable == 1) {
     lcd.createChar(0, arrowChar);
-    if (configMenuLine >= 2 ) {
+    if (menuLine >= 1 ) {
       lcd.clear();
-      configMenuLine--;
-      lcd.setCursor(0,configMenuLine);
+      //configMenuLine--;
+      lcd.setCursor(0,menuLine);
       lcd.write(0);
     }
-    Serial.println("RIGHT");
+    //Serial.println("RIGHT");
   }
   }
 }
@@ -223,15 +223,14 @@ void singleClick() {
 
 void doubleClick() {
   Serial.println("DOUBLE");
-  
 }
 
 void longClick() {
   Serial.println("LONG");
   lcd.clear();
-  lcd.createChar(0, arrowChar);
-  lcd.setCursor(0,1);
-  lcd.write(0);
+//  lcd.createChar(0, arrowChar);
+//  lcd.setCursor(0,1);
+//  lcd.write(0);
   clicks = 0;
   configScreenEnable = 0;
   startScreen();
