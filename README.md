@@ -19,8 +19,9 @@ De zender heeft ook een pic16f628a microcontroller om het scherm, knoppen en TSA
 
 Als kan werken op elke arduino met i2c uitgang.<br>
 Ik maak momenteel gebruik van een Arduino Uno.<br>
-Ik gebruik een 20 * 4 character lcd.<br>
+En een 20 * 4 character lcd ook die is op i2c aangesloten.<br>
 Rotary Encoder om alles in te stellen met een menu.<br>
+DRFS 6 v2.0 gebruik ik om mijn code te testen.<br>
 De code werkt helemaal op nog wat kleine dingetjes na zoals band selectie.<br>
 
 #### TODO ####
