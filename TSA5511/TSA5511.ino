@@ -14,6 +14,7 @@
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 #define COUNT(x) sizeof(x)/sizeof(*x)  
+int startScreen = 0;
 int readLbs = 1;            
 const byte pENCO_SW   = 2; 
 const byte pENCO_DT   = 3;
@@ -120,18 +121,18 @@ void loop()
     openMenu();
 
 
-  if ( tNow - tPrevious >= 1000 )
+  if ( startScreen == 0 )
   {
-    tPrevious = tNow;
-
     if ( memory.d.frq_show == 1 )
       lcd.clear();
 
     if ( memory.d.frq_show == 1 )
     {
-      lcd.setCursor(0, 0);
+      lcd.setCursor(0,0);
+      lcd.print("   ArduFMPLL v0.1   ");
+      lcd.setCursor(0, 1);
       lcd.print("     Frequentie     ");
-      lcd.setCursor(5, 1);
+      lcd.setCursor(5, 2);
       lcd.print(memory.d.frq_set / 1000);
       lcd.print(".");
       lcd.print(memory.d.frq_set - (memory.d.frq_set / 1000) * 1000);
@@ -139,12 +140,15 @@ void loop()
         lcd.print("00");
       }
       lcd.print(" Mhz  ");
-      if (readLbs == 0){
-        lcd.setCursor(0,3);
-        lcd.print("   Locked    ");
-      }
+      
     }
+    startScreen = 1;
+    
   }
+  if (readLbs == 0){
+        lcd.setCursor(0,3); 
+        lcd.print("       Locked       ");
+    } 
 }
 
 void pll_set_frequency(long pllfreq) {
@@ -229,8 +233,8 @@ void openMenu()
         case 1: break;
         case 2: openSubMenu( idxMenu, Screen::Menu2, &memory.d.frq_step,   0, COUNT(txSMENU2) - 1 ); break;
         case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000           ); break;
-        case 4: writeConfiguration(); pll_set_frequency(memory.d.frq_set); exitMenu = true;                                               break; 
-        case 5: readConfiguration();  exitMenu = true;                                               break;
+        case 4: writeConfiguration(); pll_set_frequency(memory.d.frq_set); readLbs = 1; startScreen = 0;  exitMenu = true;                                               break; 
+        case 5: readConfiguration();  startScreen = 0; exitMenu = true;                                               break;
       }
       forcePrint = true;
     }
