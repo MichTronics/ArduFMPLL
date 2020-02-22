@@ -11,7 +11,7 @@ De SAA1057 zit in de ECC Tube Oscillator van Fred Wester. http://www.fred-wester
 
 Dit ic kan je instellen met i2c protocol.<br>
 Deze zender heeft ook een character lcd van 16x2 om de frequentie in te stellen.<br>
-Ook heeft hij 3 knoppen om de frequentie in te stellen.<br>
+Ook heeft hij 3 knoppen om de frequentie in te stellen van 86Mhz tot 108Mhz.<br>
 En heeft een potmeter om het vermogen in te stellen van 0w tot 6w.<br>
 De zender heeft ook een pic16f628a microcontroller om het scherm, knoppen en TSA5511 aan te sturen.<br>
 
@@ -19,9 +19,9 @@ De zender heeft ook een pic16f628a microcontroller om het scherm, knoppen en TSA
 
 Als kan werken op elke arduino met i2c uitgang.<br>
 Ik maak momenteel gebruik van een Arduino Uno.<br>
-En een 20 * 4 character lcd ook die is op i2c aangesloten.<br>
+En een 20 * 4 character lcd om de frequentie in te stellen van 80Mhz tot 108Mhz, en ook die is op i2c bus aangesloten.<br>
 Rotary Encoder om alles in te stellen met een menu.<br>
-DRFS 6 v2.0 gebruik ik om mijn code te testen.<br>
+DRFS 6 v2.0 gebruik ik om mijn code te testen en is ook aangesloten op i2c bus.<br>
 De code werkt helemaal op nog wat kleine dingetjes na zoals band selectie.<br>
 
 #### TODO ####
