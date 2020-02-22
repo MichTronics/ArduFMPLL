@@ -81,6 +81,8 @@ void setup()
 
   readConfiguration();
 
+  Wire.begin();
+
   lcd.init();
   lcd.backlight();
   lcd.createChar(iARROW, bARROW);
@@ -98,6 +100,7 @@ void setup()
     delay(150);
   }
   lcd.clear();
+  pll_set_frequency(memory.d.frq_set);
   Serial.begin(9600);
 }
 
@@ -126,7 +129,9 @@ void loop()
 
     if ( memory.d.frq_show == 1 )
     {
-      lcd.setCursor(0, 2);
+      lcd.setCursor(0, 0);
+      lcd.print("     Frequentie     ");
+      lcd.setCursor(5, 1);
       lcd.print(memory.d.frq_set / 1000);
       lcd.print(".");
       lcd.print(memory.d.frq_set - (memory.d.frq_set / 1000) * 1000);
@@ -134,6 +139,10 @@ void loop()
         lcd.print("00");
       }
       lcd.print(" Mhz  ");
+      if (readLbs == 0){
+        lcd.setCursor(0,3);
+        lcd.print("   Locked    ");
+      }
     }
   }
 }
@@ -220,7 +229,7 @@ void openMenu()
         case 1: break;
         case 2: openSubMenu( idxMenu, Screen::Menu2, &memory.d.frq_step,   0, COUNT(txSMENU2) - 1 ); break;
         case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000           ); break;
-        case 4: writeConfiguration(); exitMenu = true;                                               break; 
+        case 4: writeConfiguration(); pll_set_frequency(memory.d.frq_set); exitMenu = true;                                               break; 
         case 5: readConfiguration();  exitMenu = true;                                               break;
       }
       forcePrint = true;
@@ -362,6 +371,7 @@ void readConfiguration()
     memory.d.frq_set     = 94500;
     writeConfiguration();
   }
+  
 }
 
 void writeConfiguration()
