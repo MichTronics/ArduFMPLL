@@ -11,7 +11,7 @@ De SAA1057 zit in de ECC Tube Oscillator van Fred Wester. http://www.fred-wester
 
 Dit ic kan je instellen met i2c protocol.<br>
 Deze zender heeft ook een character lcd van 16x2 om de frequentie in te stellen.<br>
-Ook heeft hij 3 knoppen om de frequentie in te stellen.
+Ook heeft hij 3 knoppen om de frequentie in te stellen.<br>
 En heeft een potmeter om het vermogen in te stellen van 0w tot 6w.<br>
 De zender heeft ook een pic16f628a microcontroller om het scherm, knoppen en TSA5511 aan te sturen.<br>
 
