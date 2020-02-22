@@ -8,152 +8,133 @@
 ////////////////////////////////////////////////
 
 #include <Wire.h>
-#include <OneButton.h>
-#include <SimpleRotary.h>
 #include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
 
-#define encoderClk 2
-#define encoderData 3
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
-int readLbs = 1;
-int configScreenEnable = 0;
-int clicks = 0;
-int configMenuLine = 1;
-int menuLine = 1;
-
-//bool up = false;
-//bool down = false;
-//bool middle = false;
-
-byte rotaryPos;
-
-byte arrowChar[] = {
-  B01100,
-  B00110,
-  B00011,
-  B11111,
-  B11111,
-  B00011,
-  B00110,
-  B01100
+#define COUNT(x) sizeof(x)/sizeof(*x)  
+int readLbs = 1;            
+const byte pENCO_SW   = 2; 
+const byte pENCO_DT   = 3;
+const byte pENCO_CLK  = 4;    
+const byte rowsLCD    = 4;
+const byte columnsLCD = 20;
+const byte iARROW     = 0;
+const byte bARROW[]   = {   
+  B00000, B00100, B00110, B11111,
+  B00110, B00100, B00000, B00000
 };
 
-LiquidCrystal_I2C lcd(0x3f, 20, 4);
-OneButton button(A0,true);
-SimpleRotary rotary(2,3,4);
+enum Button { Unknown, Ok, Left, Right } btnPressed;    
+enum Screen { Menu1, Menu2, Menu3, Menu4, Flag, Number, Freq };      
+
+const char *txMENU[] = {                          
+  "Show Frequency     ",//0
+  "Set Band           ",//1
+  "Set Step           ",//2
+  "Set Frequency      ",//3
+  "Save and Quit      ",//4
+  "Quit               "//13
+};
+const byte iMENU = COUNT(txMENU);
+
+enum eSMENU1 { A_band, B_band, C_band };
+const char *txSMENU1[] = {
+  "        3m        ",
+  "       70cm       ",
+  "       23cm       "
+};
+
+enum eSMENU2 { A_step, B_step, C_step, D_step, E_step, F_step, G_step };
+const char *txSMENU2[] = {
+  "        1 KHz     ",
+  "      100 KHz     ",
+  "      250 KHz     ",
+  "       1 Mhz      ",
+  "      10 Mhz      ",
+  "      50 Mhz      ",
+  "      100 Mhz     "
+};
+
+long stepsizearray[] = {1, 100, 250, 1000, 10000, 50000, 100000};
+
+struct MYDATA {     
+  long initialized;
+  long frq_show;
+  long frq_band;
+  long frq_step;
+  long frq_set;
+};
+union MEMORY {                                          // Estructura UNION para facilitar la lectura y escritura en la EEPROM de la estructura STRUCT
+  MYDATA d;
+  byte b[sizeof(MYDATA)];
+}
+memory;
+
 
 void setup()
 {
-  Wire.begin(); // join i2c bus
-  Serial.begin(9600);
-  
-  rotary.setTrigger(HIGH);
-  rotary.setDebounceDelay(5);
-  rotary.setErrorDelay(250);
+  pinMode(pENCO_SW,  INPUT_PULLUP);
+  pinMode(pENCO_DT,  INPUT_PULLUP);
+  pinMode(pENCO_CLK, INPUT_PULLUP);
 
-  button.attachClick(singleClick);
-  button.attachDoubleClick(doubleClick);
-  button.attachPress(longClick);
-  
+  readConfiguration();
+
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(4,0);
-  lcd.print("MichTronics");
-  lcd.setCursor(3,1);
+  lcd.createChar(iARROW, bARROW);
+
+  lcd.setCursor(5, 0);
+  lcd.print("PieTronics");
+  lcd.setCursor(3, 1);
   lcd.print("ArduFMPLL v0.1");
-  lcd.setCursor(0,3);
-  lcd.print("Radio West-Friesland");
-  delay(1000);
+  lcd.setCursor(2, 2);
+  lcd.print("Echo FM 94.5 Mhz");
+  lcd.setCursor(0, 3);
+  for ( int i = 0 ; i < columnsLCD ; i++ )
+  {
+    lcd.print(".");
+    delay(150);
+  }
   lcd.clear();
-//  lcd.createChar(0, arrowChar);
-//  lcd.setCursor(0,1);
-//  lcd.write(0);
-  
-//  pll_set_frequency(94500);
+  Serial.begin(9600);
 }
 
 void loop()
-{  
-  button.tick();
-  
-//  if (readLbs == 1){
-//    readLockbyte();
-//  }
+{
+  static unsigned long tNow      = 0;
+  static unsigned long tPrevious = 0;
 
-  rotaryPos = rotary.rotate();
-  //Serial.println(menuLine);
-  if ( rotaryPos == 1 ) {
-    //Serial.println("CW");
-    if (menuLine <= 3){
-      menuLine++;
-      //Serial.println(menuLine);
-    }
-  } else if ( rotaryPos == 2 ) {
-    //Serial.println("CCW");
-    if (menuLine >= 1){
-      menuLine--;
-      //Serial.println(menuLine);
-    }
+  tNow = millis();
+  btnPressed = readButtons();
+
+  if (readLbs == 1){
+    readLockbyte();
   }
-  startScreen();
-  configScreen();
-  
-  
-  //pll_set_frequency(94500);
-}
 
-void startScreen() {
-  //Serial.println(menuLine);
-  if (configScreenEnable == 0){
-    lcd.setCursor(7, 0);
-    lcd.print(" MAIN ");  
-  }
-//  if (rotaryPos == 1 && configScreenEnable == 0) {
-//    lcd.createChar(0, arrowChar);
-//    if (menuLine <= 3) {
-//      lcd.clear();
-//      lcd.setCursor(0,menuLine);
-//      lcd.write(0);
-//    } 
-////    Serial.println("RIGHT");
-//  } else if (rotaryPos == 2 && configScreenEnable == 0) {
-//    lcd.createChar(0, arrowChar);
-//    if (menuLine >= 1 ) {
-//      lcd.clear();
-//      lcd.setCursor(0,menuLine);
-//      lcd.write(0);
-//    }
-////    Serial.println("LEFT");
-//  }
-}
+  if ( btnPressed == Button::Ok )
+    openMenu();
 
-void configScreen() {
-  if (clicks == 1 & configScreenEnable == 1){
-    if(configScreenEnable == 1){
-      //lcd.clear();
-      lcd.setCursor(4,0);
-      lcd.print("Instellingen");
-    }
-    if (rotaryPos == 1 & configScreenEnable == 1){
-      lcd.createChar(0, arrowChar);
-      if (menuLine <= 3) {
-        lcd.clear();
-        //configMenuLine++;
-        lcd.setCursor(0,menuLine);
-        lcd.write(0);
-      }            
-      //Serial.println("LEFT");
-    }
-    if (rotaryPos == 2 & configScreenEnable == 1) {
-    lcd.createChar(0, arrowChar);
-    if (menuLine >= 1 ) {
+
+  if ( tNow - tPrevious >= 1000 )
+  {
+    tPrevious = tNow;
+
+    if ( memory.d.frq_show == 1 )
       lcd.clear();
-      //configMenuLine--;
-      lcd.setCursor(0,menuLine);
-      lcd.write(0);
+
+    if ( memory.d.frq_show == 1 )
+    {
+      lcd.setCursor(0, 2);
+      lcd.print(memory.d.frq_set / 1000);
+      lcd.print(".");
+      lcd.print(memory.d.frq_set - (memory.d.frq_set / 1000) * 1000);
+      if (((memory.d.frq_set - (memory.d.frq_set / 1000) * 1000)) < 1) {
+        lcd.print("00");
+      }
+      lcd.print(" Mhz  ");
     }
-    //Serial.println("RIGHT");
-  }
   }
 }
 
@@ -211,27 +192,206 @@ void startTransmitting(){
   Wire.endTransmission();
 }
 
-void singleClick() {
-  Serial.println("SINGLE");
+void openMenu()
+{
+  byte idxMenu       = 0;
+  boolean exitMenu   = false;
+  boolean forcePrint = true;
+
   lcd.clear();
-  lcd.createChar(0, arrowChar);
-  lcd.setCursor(0,1);
-  lcd.write(0);
-  clicks = 1;
-  configScreenEnable = 1; 
+
+  while ( !exitMenu )
+  {
+    btnPressed = readButtons();
+
+    if ( btnPressed == Button::Left && idxMenu - 1 >= 0 )
+    {
+      idxMenu--;
+    }
+    else if ( btnPressed == Button::Right && idxMenu + 1 < iMENU )
+    {
+      idxMenu++;
+    }
+    else if ( btnPressed == Button::Ok )
+    {
+      switch ( idxMenu )
+      {
+        case 0: openSubMenu( idxMenu, Screen::Flag,   &memory.d.frq_show,  0, 1                 ); break;
+        case 1: break;
+        case 2: openSubMenu( idxMenu, Screen::Menu2, &memory.d.frq_step,   0, COUNT(txSMENU2) - 1 ); break;
+        case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000            ); break;
+        case 4: writeConfiguration(); exitMenu = true;                                             break; //Salir y guardar
+        case 5: readConfiguration();  exitMenu = true;                                             break; //Salir y cancelar cambios
+      }
+      forcePrint = true;
+    }
+
+
+    if ( !exitMenu && (forcePrint || btnPressed != Button::Unknown) )
+    {
+      forcePrint = false;
+
+      static const byte endFor1 = (iMENU + rowsLCD - 1) / rowsLCD;
+      int graphMenu     = 0;
+
+      for ( int i = 1 ; i <= endFor1 ; i++ )
+      {
+        if ( idxMenu < i * rowsLCD )
+        {
+          graphMenu = (i - 1) * rowsLCD;
+          break;
+        }
+      }
+
+      byte endFor2 = graphMenu + rowsLCD;
+
+      for ( int i = graphMenu, j = 0; i < endFor2 ; i++, j++ )
+      {
+        lcd.setCursor(1, j);
+        lcd.print( (i < iMENU) ? txMENU[i] : "                    " );
+      }
+
+      for ( int i = 0 ; i < rowsLCD ; i++ )
+      {
+        lcd.setCursor(0, i);
+        lcd.print(" ");
+      }
+      lcd.setCursor(0, idxMenu % rowsLCD );
+      lcd.write(iARROW);
+    }
+  }
+
+  lcd.clear();
 }
 
-void doubleClick() {
-  Serial.println("DOUBLE");
+void openSubMenu( byte menuID, Screen screen, long *value, long minValue, long maxValue )
+{
+  boolean exitSubMenu = false;
+  boolean forcePrint  = true;
+  int freq_set_screen = 0;
+
+  lcd.clear();
+
+  while ( !exitSubMenu )
+  {
+    btnPressed = readButtons();
+
+    if ( btnPressed == Button::Ok )
+    {
+      exitSubMenu = true;
+    }
+    else if ( btnPressed == Button::Left && (*value) - 1 >= minValue )
+    {
+      if ( freq_set_screen == 1 ) {
+        *value = *value - stepsizearray[memory.d.frq_step];
+      } else {
+        (*value)--;
+      }
+    }
+    else if ( btnPressed == Button::Right && (*value) + 1 <= maxValue )
+    {
+      if ( freq_set_screen == 1) {
+        *value = *value + stepsizearray[memory.d.frq_step];
+      } else {
+        (*value)++;
+      }
+    }
+
+
+    if ( !exitSubMenu && (forcePrint || btnPressed != Button::Unknown) )
+    {
+      forcePrint = false;
+
+      lcd.setCursor(0, 0);
+      lcd.print(txMENU[menuID]);
+
+      lcd.setCursor(0, 1);
+      lcd.print("<");
+      lcd.setCursor(columnsLCD - 1, 1);
+      lcd.print(">");
+
+      if ( screen == Screen::Menu1 )
+      {
+        lcd.setCursor(1, 1);
+        lcd.print(txSMENU1[*value]);
+      }
+      else if ( screen == Screen::Menu2 )
+      {
+        lcd.setCursor(1, 1);
+        lcd.print(txSMENU2[*value]);
+      }
+      else if ( screen == Screen::Flag )
+      {
+        lcd.setCursor(columnsLCD / 2 - 1, 1);
+        lcd.print(*value == 0 ? "No " : "Yes");
+      }
+      else if ( screen == Screen::Number )
+      {
+        lcd.setCursor(columnsLCD / 2 - 1, 1);
+        lcd.print(*value);
+        lcd.print(" ");
+      }
+      else if ( screen == Screen::Freq )
+      {
+        freq_set_screen = 1;
+        lcd.setCursor(columnsLCD / 2 - 5, 1);
+        lcd.print(*value / 1000);
+        lcd.print(".");
+        lcd.print(*value - (*value / 1000) * 1000);
+        if (((*value - (*value / 1000) * 1000)) < 1) {
+          lcd.print("00");
+        }
+        lcd.print(" Mhz  ");
+      }
+    }
+  }
+  lcd.clear();
 }
 
-void longClick() {
-  Serial.println("LONG");
-  lcd.clear();
-//  lcd.createChar(0, arrowChar);
-//  lcd.setCursor(0,1);
-//  lcd.write(0);
-  clicks = 0;
-  configScreenEnable = 0;
-  startScreen();
+void readConfiguration()
+{
+  for ( int i = 0 ; i < sizeof(memory.d) ; i++  )
+    memory.b[i] = EEPROM.read(i);
+
+  if ( memory.d.initialized != 'Y' )
+  {
+    memory.d.initialized = 'Y';
+    memory.d.frq_show    = 1;
+    memory.d.frq_band    = 0;
+    memory.d.frq_step    = 0;
+    memory.d.frq_set     = 94500;
+    writeConfiguration();
+  }
+}
+
+void writeConfiguration()
+{
+  for ( int i = 0 ; i < sizeof(memory.d) ; i++  )
+    EEPROM.write( i, memory.b[i] );
+}
+
+Button readButtons()
+{
+  static boolean oldA = HIGH;
+  static boolean newA = LOW;
+  static boolean newB = LOW;
+
+  btnPressed = Button::Unknown;
+  newA = digitalRead(pENCO_DT);
+  newB = digitalRead(pENCO_CLK);
+
+  if ( !oldA && newA )
+  {
+    btnPressed = !newB ? Button::Left : Button::Right;
+    delay(50);
+  }
+  else if ( !digitalRead(pENCO_SW) )
+  {
+    while (!digitalRead(pENCO_SW));
+    btnPressed = Button::Ok;
+    delay(50);
+  }
+
+  oldA = newA;
+  return btnPressed;
 }
