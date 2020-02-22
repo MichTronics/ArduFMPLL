@@ -66,7 +66,7 @@ struct MYDATA {
   long frq_step;
   long frq_set;
 };
-union MEMORY {                                          // Estructura UNION para facilitar la lectura y escritura en la EEPROM de la estructura STRUCT
+union MEMORY {
   MYDATA d;
   byte b[sizeof(MYDATA)];
 }
@@ -216,12 +216,12 @@ void openMenu()
     {
       switch ( idxMenu )
       {
-        case 0: openSubMenu( idxMenu, Screen::Flag,   &memory.d.frq_show,  0, 1                 ); break;
+        case 0: openSubMenu( idxMenu, Screen::Flag,   &memory.d.frq_show,  0, 1                   ); break;
         case 1: break;
         case 2: openSubMenu( idxMenu, Screen::Menu2, &memory.d.frq_step,   0, COUNT(txSMENU2) - 1 ); break;
-        case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000            ); break;
-        case 4: writeConfiguration(); exitMenu = true;                                             break; //Salir y guardar
-        case 5: readConfiguration();  exitMenu = true;                                             break; //Salir y cancelar cambios
+        case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000           ); break;
+        case 4: writeConfiguration(); exitMenu = true;                                               break; 
+        case 5: readConfiguration();  exitMenu = true;                                               break;
       }
       forcePrint = true;
     }
