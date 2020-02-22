@@ -25,8 +25,9 @@ De code werkt helemaal op nog wat kleine dingetjes na zoals band selectie.<br>
 
 #### TODO ####
 
-Band selectie nog toevoegen.
-Misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnen regelen.
+Schema maken en toevoegen hoe alles aan elkaar vast.<br>
+Band selectie nog toevoegen.<br>
+Misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnen regelen.<br>
 
 ### SAA1057 ###
 
