@@ -17,9 +17,7 @@ Daar wil ik dus een arduino voor gaan gebruiken.
 
 #### TODO ####
 
-Een gebruikersinterface op een character lcd van 20x4.<br>
-Die gebruikersinterface is te bedienen met rotary encoder.<br>
-En misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnne regelen.
+Misschien ga ik ook nog een digitale potmeter gebruiken om het vermogen te kunnen regelen.
 
 ### SAA1057 ###
 
