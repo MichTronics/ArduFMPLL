@@ -36,7 +36,7 @@ const char *txMENU[] = {
   "Set Step           ",//2
   "Set Frequency      ",//3
   "Save and Quit      ",//4
-  "Quit               "//13
+  "Quit               " //5
 };
 const byte iMENU = COUNT(txMENU);
 
@@ -233,8 +233,8 @@ void openMenu()
         case 1: break;
         case 2: openSubMenu( idxMenu, Screen::Menu2, &memory.d.frq_step,   0, COUNT(txSMENU2) - 1 ); break;
         case 3: openSubMenu( idxMenu, Screen::Freq,  &memory.d.frq_set,   80000, 108000           ); break;
-        case 4: writeConfiguration(); pll_set_frequency(memory.d.frq_set); readLbs = 1; startScreen = 0;  exitMenu = true;                                               break; 
-        case 5: readConfiguration();  startScreen = 0; exitMenu = true;                                               break;
+        case 4: writeConfiguration(); pll_set_frequency(memory.d.frq_set); readLbs = 1; startScreen = 0;  exitMenu = true; break; 
+        case 5: readConfiguration();  startScreen = 0; exitMenu = true; break;
       }
       forcePrint = true;
     }
