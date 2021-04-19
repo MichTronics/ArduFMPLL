@@ -11,21 +11,34 @@
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
-LiquidCrystal_I2C lcd(0x3F, 20, 4);
-
 #define COUNT(x) sizeof(x)/sizeof(*x)  
 int startScreen = 0;
 int readLbs = 1;            
+
+// Rotary encoder SW to arduino pin 2
 const byte pENCO_SW   = 2; 
+
+// Rotary encoder DT to arduino pin 3
 const byte pENCO_DT   = 3;
-const byte pENCO_CLK  = 4;    
+
+// Rotary encoder CLK to arduino pin 4
+const byte pENCO_CLK  = 4;
+
+// Numbers of LCD rows    
 const byte rowsLCD    = 4;
+
+// Numbers of LCD colums
 const byte columnsLCD = 20;
+
+// Navigation character
 const byte iARROW     = 0;
 const byte bARROW[]   = {   
   B00000, B00100, B00110, B11111,
   B00110, B00100, B00000, B00000
 };
+
+// LiquidCrystal connected to i2c port from arduino pin A5 and A6
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 enum Button { Unknown, Ok, Left, Right } btnPressed;    
 enum Screen { Menu1, Menu2, Menu3, Menu4, Flag, Number, Freq };      
@@ -47,18 +60,19 @@ const char *txSMENU1[] = {
   "       23cm       "
 };
 
-enum eSMENU2 { A_step, B_step, C_step, D_step, E_step, F_step, G_step };
+enum eSMENU2 { A_step, B_step, C_step, D_step, E_step, F_step, G_step, H_step };
 const char *txSMENU2[] = {
-  "        1 KHz     ",
-  "      100 KHz     ",
-  "      250 KHz     ",
+  "        1 kHz     ",
+  "       50 kHz     ",
+  "      100 kHz     ",
+  "      250 kHz     ",
   "       1 Mhz      ",
   "      10 Mhz      ",
   "      50 Mhz      ",
   "      100 Mhz     "
 };
 
-long stepsizearray[] = {1, 100, 250, 1000, 10000, 50000, 100000};
+long stepsizearray[] = {1, 50, 100, 250, 1000, 10000, 50000, 100000};
 
 struct MYDATA {     
   long initialized;
@@ -67,6 +81,7 @@ struct MYDATA {
   long frq_step;
   long frq_set;
 };
+
 union MEMORY {
   MYDATA d;
   byte b[sizeof(MYDATA)];
@@ -102,7 +117,7 @@ void setup()
   }
   lcd.clear();
   pll_set_frequency(memory.d.frq_set);
-  Serial.begin(9600);
+  // Serial.begin(9600);
 }
 
 void loop()
