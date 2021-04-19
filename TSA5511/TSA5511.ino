@@ -1,9 +1,12 @@
 ////////////////////////////////////////////////
 //                                            //
 //           ArduFMPLL by MichTronics         //
-//                      v0.1                  //
-//                Working with the            //
-//        DRFS6 v2.0 3meter FM 6W TX Kit      //
+//                    v0.1                    //
+//               Working with the             //
+//       DRFS6 v2.0 3meter FM 6W TX Kit       //
+//                 Arduino UNO                //
+//           LCD 4*20 on i2c pin A5/A6        //
+//     Rotary encoder SW/DT/CLK pin 2/3/4     //
 //                                            //
 ////////////////////////////////////////////////
 
@@ -106,7 +109,7 @@ void setup()
   lcd.setCursor(5, 0);
   lcd.print("PieTronics");
   lcd.setCursor(3, 1);
-  lcd.print("ArduFMPLL v0.1");
+  lcd.print("ArduFMPLL v0.2");
   lcd.setCursor(2, 2);
   lcd.print("Echo FM 94.5 Mhz");
   lcd.setCursor(0, 3);
@@ -212,6 +215,7 @@ void readLockbyte(){
   }
 }
 
+// Start Transmitting with DRFS6 v2.0
 void startTransmitting(){
   // byte begin transmitting DRFS6 v2.0
   Wire.beginTransmission(96);
