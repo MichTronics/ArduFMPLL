@@ -13,6 +13,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
+#include <RotaryEncoder.h>
 
 #define COUNT(x) sizeof(x)/sizeof(*x)  
 int startScreen = 0;
@@ -27,6 +28,8 @@ const byte pENCO_DT   = 3;
 // Rotary encoder CLK to arduino pin 4
 const byte pENCO_CLK  = 4;
 
+RotaryEncoder encoder(pENCO_CLK, pENCO_DT, RotaryEncoder::LatchMode::FOUR3);
+
 // Numbers of LCD rows    
 const byte rowsLCD    = 4;
 
@@ -34,14 +37,14 @@ const byte rowsLCD    = 4;
 const byte columnsLCD = 20;
 
 // Navigation character
-const byte iARROW     = 0;
-const byte bARROW[]   = {   
+const uint8_t iARROW     = 0;
+const uint8_t bARROW[]   = {   
   B00000, B00100, B00110, B11111,
   B00110, B00100, B00000, B00000
 };
 
 // LiquidCrystal connected to i2c port from arduino pin A5 and A6
-LiquidCrystal_I2C lcd(0x3F, 20, 4);
+LiquidCrystal_I2C lcd(0x3F, columnsLCD, rowsLCD);
 
 enum Button { Unknown, Ok, Left, Right } btnPressed;    
 enum Screen { Menu1, Menu2, Menu3, Menu4, Flag, Number, Freq };      
@@ -63,11 +66,14 @@ const char *txSMENU1[] = {
   "       23cm       "
 };
 
-enum eSMENU2 { A_step, B_step, C_step, D_step, E_step, F_step, G_step, H_step };
+//enum eSMENU2 { A_step, B_step, C_step, D_step, E_step, F_step, G_step, H_step, I_step };
+enum eSMENU2 { A_step, B_step, C_step, D_step, E_step };
+
 const char *txSMENU2[] = {
-  "        1 kHz     ",
-  "       50 kHz     ",
-  "      100 kHz     ",
+//  "        1 kHz     ",
+//  "       25 kHz     ",
+//  "       50 kHz     ",
+//  "      100 kHz     ",
   "      250 kHz     ",
   "       1 Mhz      ",
   "      10 Mhz      ",
@@ -75,7 +81,8 @@ const char *txSMENU2[] = {
   "      100 Mhz     "
 };
 
-long stepsizearray[] = {1, 50, 100, 250, 1000, 10000, 50000, 100000};
+//long stepsizearray[] = {1, 25, 50, 100, 250, 1000, 10000, 50000, 100000};
+long stepsizearray[] = { 250, 1000, 10000, 50000, 100000 };
 
 struct MYDATA {     
   long initialized;
@@ -102,6 +109,9 @@ void setup()
 
   Wire.begin();
 
+  attachInterrupt(pENCO_CLK, checkPosition, CHANGE);
+  attachInterrupt(pENCO_DT, checkPosition, CHANGE);
+
   lcd.init();
   lcd.backlight();
   lcd.createChar(iARROW, bARROW);
@@ -120,7 +130,7 @@ void setup()
   }
   lcd.clear();
   pll_set_frequency(memory.d.frq_set);
-  // Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop()
@@ -129,12 +139,13 @@ void loop()
   static unsigned long tPrevious = 0;
 
   tNow = millis();
+  encoder.tick();
   btnPressed = readButtons();
 
   if (readLbs == 1){
     readLockbyte();
   }
-
+    
   if ( btnPressed == Button::Ok )
     openMenu();
 
@@ -168,6 +179,12 @@ void loop()
         lcd.print("       Locked       ");
     } 
 }
+
+void checkPosition()
+{
+  encoder.tick(); // just call tick() to check the state.
+}
+
 
 void pll_set_frequency(long pllfreq) {
   char data[2];
@@ -234,6 +251,7 @@ void openMenu()
 
   while ( !exitMenu )
   {
+    encoder.tick();
     btnPressed = readButtons();
 
     if ( btnPressed == Button::Left && idxMenu - 1 >= 0 )
@@ -258,7 +276,6 @@ void openMenu()
       forcePrint = true;
     }
 
-
     if ( !exitMenu && (forcePrint || btnPressed != Button::Unknown) )
     {
       forcePrint = false;
@@ -274,7 +291,6 @@ void openMenu()
           break;
         }
       }
-
       byte endFor2 = graphMenu + rowsLCD;
 
       for ( int i = graphMenu, j = 0; i < endFor2 ; i++, j++ )
@@ -292,7 +308,6 @@ void openMenu()
       lcd.write(iARROW);
     }
   }
-
   lcd.clear();
 }
 
@@ -306,6 +321,7 @@ void openSubMenu( byte menuID, Screen screen, long *value, long minValue, long m
 
   while ( !exitSubMenu )
   {
+    encoder.tick();
     btnPressed = readButtons();
 
     if ( btnPressed == Button::Ok )
@@ -328,7 +344,6 @@ void openSubMenu( byte menuID, Screen screen, long *value, long minValue, long m
         (*value)++;
       }
     }
-
 
     if ( !exitSubMenu && (forcePrint || btnPressed != Button::Unknown) )
     {
@@ -373,6 +388,7 @@ void openSubMenu( byte menuID, Screen screen, long *value, long minValue, long m
         if (((*value - (*value / 1000) * 1000)) < 1) {
           lcd.print("00");
         }
+        
         lcd.print(" Mhz  ");
       }
     }
@@ -394,7 +410,6 @@ void readConfiguration()
     memory.d.frq_set     = 94500;
     writeConfiguration();
   }
-  
 }
 
 void writeConfiguration()
@@ -405,18 +420,16 @@ void writeConfiguration()
 
 Button readButtons()
 {
-  static boolean oldA = HIGH;
-  static boolean newA = LOW;
-  static boolean newB = LOW;
-
+  static int pos = 0;
   btnPressed = Button::Unknown;
-  newA = digitalRead(pENCO_DT);
-  newB = digitalRead(pENCO_CLK);
-
-  if ( !oldA && newA )
-  {
-    btnPressed = !newB ? Button::Left : Button::Right;
-    delay(50);
+  int newPos = encoder.getPosition();
+  if (pos != newPos) {
+    if ((int) (encoder.getDirection()) == 1) {
+      btnPressed = Button::Right;
+    }
+    else if ((int) (encoder.getDirection()) != 1) {
+      btnPressed = Button::Left;
+    }
   }
   else if ( !digitalRead(pENCO_SW) )
   {
@@ -424,7 +437,6 @@ Button readButtons()
     btnPressed = Button::Ok;
     delay(50);
   }
-
-  oldA = newA;
+  pos = newPos;
   return btnPressed;
 }
